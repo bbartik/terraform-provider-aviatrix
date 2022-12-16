@@ -171,6 +171,15 @@ func resourceAviatrixSite2Cloud() *schema.Resource {
 					"SHA-1", "SHA-256", "SHA-384", "SHA-512",
 				}, false),
 			},
+			"phase1_identifier": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Phase one Identifier. Valid values: 'public-ip' and 'private-ip'.",
+				ValidateFunc: validation.StringInSlice([]string{
+					"public-ip", "private-ip",
+				}, false),
+			},
 			"phase_2_authentication": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -422,6 +431,7 @@ func resourceAviatrixSite2CloudCreate(d *schema.ResourceData, meta interface{}) 
 		AuthType:                      d.Get("auth_type").(string),
 		TunnelType:                    d.Get("tunnel_type").(string),
 		CaCertTagName:                 d.Get("ca_cert_tag_name").(string),
+		Phase1Identifier:              d.Get("phase1_identifier").(string),
 		RemoteIdentifier:              d.Get("remote_identifier").(string),
 		RemoteGwType:                  d.Get("remote_gateway_type").(string),
 		RemoteGwIP:                    d.Get("remote_gateway_ip").(string),
@@ -573,6 +583,7 @@ func resourceAviatrixSite2CloudCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	s2c.Phase1Auth = d.Get("phase_1_authentication").(string)
+	s2c.Phase1Identifier = d.Get("phase1_identifier").(string)
 	s2c.Phase1DhGroups = d.Get("phase_1_dh_groups").(string)
 	s2c.Phase1Encryption = d.Get("phase_1_encryption").(string)
 	s2c.Phase2Auth = d.Get("phase_2_authentication").(string)
@@ -878,6 +889,7 @@ func resourceAviatrixSite2CloudRead(d *schema.ResourceData, meta interface{}) er
 			d.Set("ssl_server_pool", s2c.SslServerPool)
 		}
 
+		d.Set("phase1_identifier", s2c.Phase1Identifier)
 		d.Set("enable_dead_peer_detection", s2c.DeadPeerDetection)
 		d.Set("enable_active_active", s2c.EnableActiveActive)
 		d.Set("forward_traffic_to_transit", s2c.ForwardToTransit)
